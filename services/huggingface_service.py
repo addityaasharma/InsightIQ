@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-hf_token = "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"
+hf_token = os.getenv("HF_TOKEN")
 client = InferenceClient(token=hf_token)
 
 
