@@ -16,7 +16,7 @@ def middleware(f):
 
         try:
             payload = jwt.decode(
-                token, secret_key, algorithms=["SHA256"], options={"require": ["exp"]}
+                token, secret_key, algorithms=["HS256"], options={"require": ["exp"]}
             )
             if payload["exp"] < time.time():
                 return jsonify({"error": "Token has expired!"}), 401
