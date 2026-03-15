@@ -17,7 +17,17 @@ db.init_app(app)
 migrate.init_app(app, db)
 limiter.init_app(app)
 init_celery(app)
-CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
+# ✅ Fix in app.py
+CORS(app,
+    supports_credentials=True,
+    resources={r"/*": {
+        "origins": [
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "https://your-production-frontend.com",  # add your deployed URL
+        ]
+    }}
+)
 
 app.register_blueprint(user)
 @app.route("/", methods=["GET"])
