@@ -87,6 +87,32 @@ def signup():
             500,
         )
 
+@user.route("/logout", methods=["POST"])
+def logout():
+    try:
+        response = make_response(
+            jsonify({
+                "status": "success",
+                "message": "Logged out successfully"
+            }),
+            200
+        )
+
+        # Remove token cookie
+        response.delete_cookie(
+            "token",
+            httponly=True,
+            secure=True,
+            samesite="None"
+        )
+        return response
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": "Logout failed",
+            "error": str(e)
+        }), 500
+
 
 @user.route("/login", methods=["POST"])
 @limiter.limit("5 per minute")
