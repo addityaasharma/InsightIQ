@@ -523,18 +523,35 @@ def get_queries():
         userID = g.user_id
         if not userID:
             return jsonify({"status": "error", "message": "Unauthorized"}), 400
-        
+
         check_user = User.query.get(userID)
         if not check_user:
             return jsonify({"status": "error", "message": "User not found"}), 404
-        
-        datasets = Dataset.query.filter_by(user_id=userID).all()
-        if not datasets:
-            return jsonify({"status": "success", "message": "No datasets found"}), 200
-        
+
+        # page from query params
+        page = request.args.get("page", 1, type=int)
+        per_page = 10
+
+        datasets = (
+            Dataset.query
+            .filter_by(user_id=userID)
+            .order_by(Dataset.created_at.desc())  # latest first
+            .paginate(page=page, per_page=per_page, error_out=False)
+        )
+
+        if not datasets.items:
+            return jsonify({
+                "status": "success",
+                "message": "No datasets found",
+                "datasets": []
+            }), 200
+
         return jsonify({
             "status": "success",
             "message": "Datasets found",
+            "page": page,
+            "total_pages": datasets.pages,
+            "total_datasets": datasets.total,
             "datasets": [
                 {
                     "id": d.id,
@@ -542,22 +559,17 @@ def get_queries():
                     "path": d.file_path,
                     "created_at": d.created_at,
                 }
-                for d in datasets
+                for d in datasets.items
             ]
         }), 200
 
     except Exception as e:
         db.session.rollback()
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "message": "Failed to fetch queries",
-                    "error": str(e),
-                }
-            ),
-            500,
-        )
+        return jsonify({
+            "status": "error",
+            "message": "Failed to fetch queries",
+            "error": str(e),
+        }), 500
 
 
 @user.route("/profile", methods=["GET"])
