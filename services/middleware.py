@@ -21,7 +21,7 @@ def middleware(f):
             if payload["exp"] < time.time():
                 return jsonify({"error": "Token has expired!"}), 401
 
-            g.user_id = payload["user_id"]
+            g.user_id = payload["customer_id"]
 
         except jwt.ExpiredSignatureError:
             return jsonify({"error": "Token has expired!"}), 401
