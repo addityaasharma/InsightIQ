@@ -70,7 +70,7 @@ def signup():
         )
 
         response.set_cookie(
-            "access_token",
+            "token",
             token,
             httponly=True,
             secure=True,
@@ -131,7 +131,7 @@ def login():
         )
 
         response.set_cookie(
-            "access_token",
+            "token",
             token,
             httponly=True,
             secure=True,
