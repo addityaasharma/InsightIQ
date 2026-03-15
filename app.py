@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 from utils.config import db, migrate, limiter
 from utils.connection import Development
@@ -18,7 +18,11 @@ migrate.init_app(app, db)
 limiter.init_app(app)
 init_celery(app)
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
+
 app.register_blueprint(user)
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("index.html")
 
 
 if __name__ == "__main__":

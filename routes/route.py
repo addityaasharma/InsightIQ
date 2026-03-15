@@ -149,8 +149,9 @@ def login():
 
 
 @user.route("/", methods=["POST"])
+@middleware
 def upload_csv():
-    userID = 2
+    userID = g.user_id
     if not userID:
         return jsonify({"status": "error", "message": "Unauthorized"}), 400
 
@@ -508,6 +509,50 @@ def get_dataset(dataset_id):
                 {
                     "status": "error",
                     "message": "Failed to fetch dataset",
+                    "error": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@user.route("/queries", methods=["GET"])
+@middleware
+def get_queries():
+    try:
+        userID = g.user_id
+        if not userID:
+            return jsonify({"status": "error", "message": "Unauthorized"}), 400
+        
+        check_user = User.query.get(userID)
+        if not check_user:
+            return jsonify({"status": "error", "message": "User not found"}), 404
+        
+        datasets = Dataset.query.filter_by(user_id=userID).all()
+        if not datasets:
+            return jsonify({"status": "success", "message": "No datasets found"}), 200
+        
+        return jsonify({
+            "status": "success",
+            "message": "Datasets found",
+            "datasets": [
+                {
+                    "id": d.id,
+                    "name": d.file_name,
+                    "path": d.file_path,
+                    "created_at": d.created_at,
+                }
+                for d in datasets
+            ]
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "message": "Failed to fetch queries",
                     "error": str(e),
                 }
             ),
