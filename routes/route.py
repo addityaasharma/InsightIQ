@@ -558,3 +558,41 @@ def get_queries():
             ),
             500,
         )
+
+
+@user.route("/profile", methods=["GET"])
+@middleware
+def get_profile():
+    try:
+        userID = g.user_id
+        if not userID:
+            return jsonify({"status": "error", "message": "Unauthorized"}), 400
+        
+        check_user = User.query.get(userID)
+        if not check_user:
+            return jsonify({"status": "error", "message": "User not found"}), 404
+        
+        return jsonify({
+            "status": "success",
+            "message": "User profile fetched",
+            "user": {
+                "id": check_user.id,
+                "username": check_user.username,
+                "email": check_user.email,
+                "role": check_user.role.value,
+                "created_at": check_user.created_at,
+            }
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "message": "Failed to fetch profile",
+                    "error": str(e),
+                }
+            ),
+            500,
+        )
