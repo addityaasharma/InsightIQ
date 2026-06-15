@@ -529,6 +529,3 @@ razorpay==2.0.0
 This project is proprietary software developed by **Aditya Sharma**
 All rights reserved © 2025 Aditya Sharma.
 
----
-
-*Built with ❤️ in Bhilai, Chhattisgarh*
